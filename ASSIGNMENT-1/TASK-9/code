@@ -1,0 +1,115 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+using namespace std;
+
+constexpr long long MIN_BALANCE = 5000;
+constexpr int PEAK_PERCENT = 20;
+
+long long calculateFare(int zone, int hour) {
+    const long long baseFares[] = {1000, 2000, 3000};
+
+    if (zone < 0 || zone > 2 || hour < 0 || hour > 23) {
+        return -1;
+    }
+
+    bool peak = (hour >= 8 && hour < 10) ||
+                (hour >= 17 && hour < 20);
+
+    long long fare = baseFares[zone];
+
+    if (peak) {
+        fare += fare * PEAK_PERCENT / 100;
+    }
+
+    return fare;
+}
+
+void printMoney(long long paise) {
+    cout << "Rs " << paise / 100 << '.'
+         << setw(2) << setfill('0') << paise % 100
+         << setfill(' ');
+}
+
+int main() {
+    struct TestCase {
+        string name;
+        int zone;
+        int hour;
+        long long expected;
+    };
+
+    TestCase tests[] = {
+        {"Inner off-peak", 0, 11, 1000},
+        {"Middle peak", 1, 18, 2400},
+        {"Outer off-peak", 2, 14, 3000},
+        {"Inner at 8 AM", 0, 8, 1200},
+        {"Outer at 7 PM", 2, 19, 3600},
+        {"Middle at 10 AM", 1, 10, 2000},
+        {"Middle at 8 PM", 1, 20, 2000},
+        {"Invalid zone", 5, 12, -1}
+    };
+
+    int totalTests = sizeof(tests) / sizeof(tests[0]);
+    int passed = 0;
+
+    cout << "METRO FARE TEST REPORT\n\n";
+
+    for (const auto& test : tests) {
+        long long actual = calculateFare(test.zone, test.hour);
+
+        bool success = (actual == test.expected);
+
+        cout << test.name << " | Expected: ";
+
+        if (test.expected < 0)
+            cout << "Invalid";
+        else
+            printMoney(test.expected);
+
+        cout << " | Actual: ";
+
+        if (actual < 0)
+            cout << "Invalid";
+        else
+            printMoney(actual);
+
+        cout << " | " << (success ? "PASS" : "FAIL") << '\n';
+
+        if (success) {
+            passed++;
+        }
+    }
+
+    cout << "\nTests Passed: " << passed
+         << "/" << totalTests << '\n';
+
+    // Minimum balance boundary test
+    long long balance = 6200;
+    long long fare = calculateFare(0, 8);
+
+    cout << "\nMINIMUM BALANCE TEST\n";
+
+    if (balance - fare >= MIN_BALANCE) {
+        balance -= fare;
+        cout << "Journey accepted. Remaining balance: ";
+        printMoney(balance);
+    } else {
+        cout << "Journey rejected.";
+    }
+
+    cout << '\n';
+
+    // Negative recharge validation
+    long long recharge = -500;
+
+    cout << "\nRECHARGE VALIDATION\n";
+
+    if (recharge < 0) {
+        cout << "Negative recharge rejected.\n";
+    } else {
+        cout << "Recharge accepted.\n";
+    }
+
+    return 0;
+}
