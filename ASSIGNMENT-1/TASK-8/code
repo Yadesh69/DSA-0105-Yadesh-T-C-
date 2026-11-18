@@ -1,0 +1,56 @@
+#include <iostream>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+int main() {
+    int hour;
+    long long balance;
+
+    cout << "Enter journey hour (0-23): ";
+
+    while (!(cin >> hour) || hour < 0 || hour > 23) {
+        cout << "Invalid hour. Enter again: ";
+
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    cout << "Enter card balance in paise: ";
+
+    while (!(cin >> balance) || balance < 0) {
+        cout << "Invalid balance. Enter again: ";
+
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    bool peak = (hour >= 8 && hour < 10) ||
+                (hour >= 17 && hour < 20);
+
+    long long fare = 1000;
+
+    if (peak) {
+        fare += fare * 20 / 100;
+    }
+
+    cout << "\nJOURNEY REPORT\n";
+    cout << "Hour: " << hour << '\n';
+    cout << "Peak status: " << (peak ? "Peak" : "Off-peak") << '\n';
+
+    cout << fixed << setprecision(2);
+
+    cout << "Fare: Rs " << static_cast<double>(fare) / 100 << '\n';
+
+    if (balance - fare >= 5000) {
+        balance -= fare;
+        cout << "Status: Journey Accepted\n";
+    } else {
+        cout << "Status: Journey Rejected\n";
+    }
+
+    cout << "Remaining balance: Rs "
+         << static_cast<double>(balance) / 100 << '\n';
+
+    return 0;
+}
