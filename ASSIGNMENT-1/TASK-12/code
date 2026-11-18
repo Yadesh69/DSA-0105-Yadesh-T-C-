@@ -1,0 +1,158 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+enum class Zone {
+    Inner,
+    Middle,
+    Outer,
+    Airport
+};
+
+constexpr long long MIN_BALANCE = 5000;
+constexpr int PEAK_PERCENT = 20;
+constexpr int WEEKEND_DISCOUNT = 10;
+
+constexpr long long BASE_FARES[] = {
+    1000, 2000, 3000, 6000
+};
+
+class MonthlyPass {
+private:
+    bool coveredZones[4]{};
+    bool active;
+
+public:
+    MonthlyPass(Zone firstZone, Zone secondZone, bool isActive)
+        : active(isActive) {
+        coveredZones[static_cast<int>(firstZone)] = true;
+        coveredZones[static_cast<int>(secondZone)] = true;
+    }
+
+    bool covers(Zone zone) const {
+        int index = static_cast<int>(zone);
+
+        return active &&
+               index >= 0 &&
+               index < 4 &&
+               coveredZones[index];
+    }
+};
+
+class SmartCard {
+private:
+    long long balance;
+
+public:
+    explicit SmartCard(long long initialBalance)
+        : balance(initialBalance) {}
+
+    bool canTravel(long long fare) const {
+        return fare >= 0 &&
+               balance - fare >= MIN_BALANCE;
+    }
+
+    bool deduct(long long fare) {
+        if (!canTravel(fare)) {
+            return false;
+        }
+
+        balance -= fare;
+        return true;
+    }
+
+    long long getBalance() const {
+        return balance;
+    }
+};
+
+long long calculateFare(
+    Zone zone,
+    bool peak,
+    bool weekend,
+    const MonthlyPass& pass
+) {
+    int index = static_cast<int>(zone);
+
+    if (index < 0 || index >= 4) {
+        return -1;
+    }
+
+    // Monthly pass gives unlimited travel in covered zones.
+    if (pass.covers(zone)) {
+        return 0;
+    }
+
+    long long fare = BASE_FARES[index];
+
+    // Weekend discount takes priority over peak surcharge.
+    if (weekend) {
+        fare -= fare * WEEKEND_DISCOUNT / 100;
+    } else if (peak) {
+        fare += fare * PEAK_PERCENT / 100;
+    }
+
+    return fare;
+}
+
+void printMoney(long long amount) {
+    cout << "Rs " << amount / 100 << '.'
+         << setw(2) << setfill('0') << amount % 100
+         << setfill(' ');
+}
+
+int main() {
+    SmartCard card(20000);
+
+    // Monthly pass covers Inner and Airport zones.
+    MonthlyPass pass(
+        Zone::Inner,
+        Zone::Airport,
+        true
+    );
+
+    struct Journey {
+        Zone zone;
+        bool peak;
+        bool weekend;
+    };
+
+    Journey journeys[] = {
+        {Zone::Inner, false, false},
+        {Zone::Outer, true, false},
+        {Zone::Outer, true, true},
+        {Zone::Airport, true, false}
+    };
+
+    cout << "UPDATED METRO FARE SYSTEM\n\n";
+
+    for (const Journey& journey : journeys) {
+        long long fare = calculateFare(
+            journey.zone,
+            journey.peak,
+            journey.weekend,
+            pass
+        );
+
+        cout << "Fare: ";
+
+        if (fare < 0) {
+            cout << "Invalid zone\n";
+            continue;
+        }
+
+        printMoney(fare);
+
+        if (card.deduct(fare)) {
+            cout << " | Journey accepted";
+        } else {
+            cout << " | Journey rejected";
+        }
+
+        cout << " | Remaining balance: ";
+        printMoney(card.getBalance());
+        cout << '\n';
+    }
+
+    return 0;
+}
