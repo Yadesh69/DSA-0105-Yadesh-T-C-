@@ -1,0 +1,55 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Passenger {
+protected:
+    int passengerId;
+    string passengerType;
+
+public:
+    Passenger(int id, string type)
+        : passengerId(id), passengerType(type) {}
+
+    void displayPassenger() const {
+        cout << "Passenger ID: " << passengerId << '\n';
+        cout << "Passenger Type: " << passengerType << '\n';
+    }
+};
+
+class SmartCard {
+private:
+    long long balance;
+
+public:
+    SmartCard(long long initialBalance) : balance(initialBalance) {}
+
+    bool canTravel(long long fare) const {
+        return balance - fare >= 5000;
+    }
+
+    void deductFare(long long fare) {
+        if (canTravel(fare)) {
+            balance -= fare;
+            cout << "Fare deducted successfully.\n";
+        } else {
+            cout << "Journey denied. Minimum balance required.\n";
+        }
+    }
+
+    void displayBalance() const {
+        cout << "Remaining Balance: Rs " << balance / 100 << '\n';
+    }
+};
+
+int main() {
+    Passenger passenger(101, "Student");
+    SmartCard card(10000);
+
+    passenger.displayPassenger();
+
+    card.deductFare(2000);
+    card.displayBalance();
+
+    return 0;
+}
