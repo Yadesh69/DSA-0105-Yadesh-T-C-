@@ -1,0 +1,64 @@
+#include <iostream>
+#include <iomanip>
+#include <climits>
+using namespace std;
+
+int main() {
+    const long long journeys[] = {
+        20000,
+        500000,
+        3000000
+    };
+
+    const long long FARE_PAISE = 2000; // Rs 20
+
+    cout << fixed << setprecision(2);
+
+    cout << "METRO COLLECTION COMPARISON\n\n";
+
+    for (long long count : journeys) {
+        long long integerTotal = count * FARE_PAISE;
+
+        double doubleTotal = count * 20.0;
+
+        cout << "Journeys: " << count << '\n';
+
+        cout << "Integer-paise total: Rs "
+             << static_cast<double>(integerTotal) / 100 << '\n';
+
+        cout << "Double-rupee total: Rs "
+             << doubleTotal << '\n';
+
+        cout << "Difference: Rs "
+             << (static_cast<double>(integerTotal) / 100 - doubleTotal)
+             << "\n\n";
+    }
+
+    cout << "INTEGER LIMIT ANALYSIS\n";
+
+    long long networkTotal = 3000000LL * FARE_PAISE;
+
+    cout << "INT_MAX: " << INT_MAX << '\n';
+    cout << "Network total in paise: " << networkTotal << '\n';
+
+    if (networkTotal > INT_MAX) {
+        cout << "Result: int is insufficient for this total.\n";
+    } else {
+        cout << "Result: int is sufficient for this total.\n";
+    }
+
+    cout << "\nFLOATING-POINT PRECISION TEST\n";
+
+    double doubleSum = 0.0;
+
+    for (int i = 0; i < 10; i++) {
+        doubleSum += 0.1;
+    }
+
+    cout << "Double sum of ten 0.1 values: "
+         << setprecision(17) << doubleSum << '\n';
+
+    cout << "Expected mathematical value: 1.0\n";
+
+    return 0;
+}
