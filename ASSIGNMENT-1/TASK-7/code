@@ -1,0 +1,66 @@
+#include <iostream>
+using namespace std;
+
+// Procedural approach
+long long proceduralBalance = 10000;
+const long long MIN_BALANCE = 5000;
+
+bool proceduralCanTravel(long long fare) {
+    return proceduralBalance - fare >= MIN_BALANCE;
+}
+
+void proceduralDeduct(long long fare) {
+    if (proceduralCanTravel(fare)) {
+        proceduralBalance -= fare;
+        cout << "Procedural: Fare deducted successfully.\n";
+    } else {
+        cout << "Procedural: Journey denied.\n";
+    }
+}
+
+// Object-oriented approach
+class SmartCard {
+private:
+    long long balance;
+
+public:
+    SmartCard(long long initialBalance)
+        : balance(initialBalance) {}
+
+    bool canTravel(long long fare) const {
+        return fare >= 0 && balance - fare >= MIN_BALANCE;
+    }
+
+    bool deduct(long long fare) {
+        if (canTravel(fare)) {
+            balance -= fare;
+            return true;
+        }
+        return false;
+    }
+
+    long long getBalance() const {
+        return balance;
+    }
+};
+
+int main() {
+    cout << "PROCEDURAL APPROACH\n";
+
+    proceduralDeduct(2000);
+    cout << "Balance: Rs " << proceduralBalance / 100 << '\n';
+
+    cout << "\nOBJECT-ORIENTED APPROACH\n";
+
+    SmartCard card(10000);
+
+    if (card.deduct(2000)) {
+        cout << "OOP: Fare deducted successfully.\n";
+    } else {
+        cout << "OOP: Journey denied.\n";
+    }
+
+    cout << "Balance: Rs " << card.getBalance() / 100 << '\n';
+
+    return 0;
+}
