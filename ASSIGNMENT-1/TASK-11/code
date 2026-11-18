@@ -1,0 +1,125 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+enum class Zone {
+    Inner,
+    Middle,
+    Outer
+};
+
+constexpr long long MIN_BALANCE = 5000;
+constexpr int PEAK_PERCENT = 20;
+
+class FareTable {
+private:
+    const long long baseFares[3] = {
+        1000, 2000, 3000
+    };
+
+public:
+    long long calculateFare(
+        Zone zone,
+        bool peak,
+        int concessionPercent = 0
+    ) const {
+        int index = static_cast<int>(zone);
+
+        if (index < 0 || index >= 3 ||
+            concessionPercent < 0 ||
+            concessionPercent > 100) {
+            return -1;
+        }
+
+        long long fare = baseFares[index];
+
+        if (peak) {
+            fare += fare * PEAK_PERCENT / 100;
+        }
+
+        fare = fare * (100 - concessionPercent) / 100;
+
+        return fare;
+    }
+};
+
+class SmartCard {
+private:
+    long long balance;
+
+public:
+    explicit SmartCard(long long initialBalance)
+        : balance(initialBalance) {}
+
+    bool canTravel(long long fare) const {
+        return fare >= 0 &&
+               balance - fare >= MIN_BALANCE;
+    }
+
+    bool deduct(long long fare) {
+        if (!canTravel(fare)) {
+            return false;
+        }
+
+        balance -= fare;
+        return true;
+    }
+
+    long long getBalance() const {
+        return balance;
+    }
+};
+
+void printMoney(long long amount) {
+    cout << "Rs " << amount / 100 << '.'
+         << setw(2) << setfill('0') << amount % 100
+         << setfill(' ');
+}
+
+int main() {
+    FareTable fareTable;
+    SmartCard card(10000);
+
+    struct Journey {
+        Zone zone;
+        bool peak;
+        int concessionPercent;
+    };
+
+    Journey journeys[] = {
+        {Zone::Inner, false, 0},
+        {Zone::Middle, true, 0},
+        {Zone::Outer, false, 10}
+    };
+
+    cout << "FINAL METRO FARE SYSTEM\n\n";
+
+    for (const Journey& journey : journeys) {
+        long long fare = fareTable.calculateFare(
+            journey.zone,
+            journey.peak,
+            journey.concessionPercent
+        );
+
+        cout << "Calculated Fare: ";
+
+        if (fare < 0) {
+            cout << "Invalid journey\n";
+            continue;
+        }
+
+        printMoney(fare);
+
+        if (card.deduct(fare)) {
+            cout << " | Journey accepted";
+        } else {
+            cout << " | Journey rejected";
+        }
+
+        cout << " | Balance: ";
+        printMoney(card.getBalance());
+        cout << '\n';
+    }
+
+    return 0;
+}
